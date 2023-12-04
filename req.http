@@ -4,3 +4,5 @@ Content-Type: application/json
 {
   "message": "FUC YOU TOO"
 }
+
+GET http://localhost:3001/goodbye

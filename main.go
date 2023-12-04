@@ -1,29 +1,47 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/ricardoraposo/microservices/handlers"
 )
 
 func main() {
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Hello Fuckers!")
-    data, err := io.ReadAll(r.Body)
-    if err != nil {
-      http.Error(rw, "Oops, something went wrong here", http.StatusBadRequest)
-      return
-    }
-    fmt.Fprintf(rw, "Hello %s", data)
-	})
+	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	hh := handlers.NewHello(l)
+	gh := handlers.NewGoodbye(l)
 
-	http.HandleFunc("/goodbye", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Goodbye FUCKERS!!!")
-	})
+	sm := http.NewServeMux()
+	sm.Handle("/", hh)
+	sm.Handle("/goodbye", gh)
 
-	err := http.ListenAndServe(":3001", nil)
-	if err != nil {
-		return
+	s := http.Server{
+		Addr:         ":3001",
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
 	}
+
+	go func() {
+		err := s.ListenAndServe()
+    if err != nil {
+      l.Fatal(err)
+    }
+	}()
+
+  sigChan := make(chan os.Signal)
+  signal.Notify(sigChan, os.Interrupt)
+  signal.Notify(sigChan, os.Kill)
+
+  sig := <- sigChan
+  l.Println("Received terminate, graceful shutdown", sig)
+
+	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	s.Shutdown(tc)
 }

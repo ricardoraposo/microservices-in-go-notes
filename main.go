@@ -27,9 +27,9 @@ func main() {
 	postRouter.Use(ph.MiddlewareProductValidation)
 
 	s := http.Server{
-		Addr:    ":3001",
-		Handler: sm,
-	}
+        Addr:    ":3001",
+        Handler: sm,
+    }
 
 	if err := s.ListenAndServe(); err != nil {
 		l.Fatal(err)

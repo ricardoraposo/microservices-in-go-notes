@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"time"
 )
 
@@ -25,9 +26,9 @@ func (p *Product) FromJSON(r io.Reader) error {
 
 type Products []*Product
 
-func (p *Products) ToJson(w io.Writer) error {
-	e := json.NewEncoder(w)
-	return e.Encode(p)
+func (p *Products) ToJson(w http.ResponseWriter) error {
+    w.Header().Set("Content-Type", "application/json")
+	return json.NewEncoder(w).Encode(p)
 }
 
 func GetProducts() Products {

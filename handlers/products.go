@@ -35,7 +35,6 @@ func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST product")
 
 	prod := r.Context().Value(KeyProduct{}).(data.Product)
-
 	data.AddProduct(&prod)
 }
 
@@ -43,7 +42,7 @@ func (p Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(rw, "Something went wrong converting to param to int", http.StatusInternalServerError)
+		http.Error(rw, "Something went wrong converting the param to int", http.StatusInternalServerError)
 		return
 	}
 
